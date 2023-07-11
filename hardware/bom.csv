@@ -1,0 +1,43 @@
+﻿designator,quantity,value,pack,mpn,mount_type
+"C201, C308",2,10uF/16v,C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,smt
+"C301, C302, C305, C509, C601, C602, C603, C606",8,0.1uF,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,,smt
+C303,1,2.2uF,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,,smt
+"C304, C306",2,10uF,C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,smt
+"C307, C309, C405, C406, C407, C408, C501, C502, C503, C506, C507, C508, C510, C511, C512",15,0.1uF/50v,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,,smt
+"C401, C402, C409, C410",4,1uF/10v,C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,smt
+"C403, C404",2,27pF/50v,C_0603_1608Metric,,smt
+"C411, C412, C513, C514, C515",5,4.7uF/50v,C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,,smt
+"C504, C505",2,27pF/50v,C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,,smt
+"C604, C605",2,1uF,C_0805_2012Metric,,smt
+D101,1,PRTR5V0U2X,SOT-143,,smt
+"D201, D302, D401",3,LED RED,LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder,,smt
+D202,1,OSI5LA5113A,LED_D5.0mm,,tht
+D301,1,eMMC PWR LED RED,LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder,,smt
+D501,1,TGT SEL LED BLUE,LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder,,smt
+FB301,1,BK2125HS601-T,L_0603_1608Metric_Pad1.05x0.95mm_HandSolder,,smt
+"FB501, FB502",2,BK2125HS601-T,L_0805_2012Metric_Pad1.15x1.40mm_HandSolder,,smt
+J101,1,USB_B_Mini,usb mini B connector c2235 dim 2,,tht
+J102,1,uSD-CARD-PAD,uSD Card Pad,,smt
+"Q201, Q301",2,2N7002K,SOT-23,,smt
+Q302,1,IRF7606PBF,MSOP-8_3x3mm_P0.65mm,,smt
+"R201, R204, R302, R303, R308, R403, R404, R502, R503, R507, R509, R601, R602",13,10K,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,smt
+"R202, R304, R307, R309, R508",5,1K,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,smt
+R203,1,33R,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,smt
+"R301, R506",2,2K,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,smt
+R305,1,20K 1%,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,smt
+"R306, R402, R501",3,12K 1%,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,smt
+R401,1,1M,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,smt
+R405,1,330R,R_0805_2012Metric_Pad1.20x1.40mm_HandSolder,,smt
+"R504, R505",2,27R,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,,smt
+SW301,1,RESET SW,WS-TASV SMT Tact Switch,,smt
+U201,1,SPS-445,SPS445 3pin,,tht
+U301,1,SPX3819M5-L,SOT-23-5,,smt
+U401,1,AT24MAC402-STUM,SOT-23-5_HandSoldering,,smt
+U402,1,USB2640-HZH-02,QFN-48-1EP_7x7mm_P0.5mm_EP5.15x5.15mm,,smt
+U501,1,93LCxxBxxOT,SOT-23-6,,smt
+U502,1,FT232HL,LQFP-48_7x7mm_P0.5mm,,smt
+U503,1,74AHC1G14,SOT-23-5_HandSoldering,,smt
+"U601, U602, U603",3,TMUX1574PWR,TSSOP-16_4.4x5mm_P0.65mm,,smt
+U604,1,EM32VSUKN,EM32VSUKN FPGA153,,smt
+Y401,1,24MHz,Crystal_SMD_2016-4Pin_2.0x1.6mm,,smt
+Y501,1,12MHz,Crystal_SMD_3225-4Pin_3.2x2.5mm,,smt
