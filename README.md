@@ -16,7 +16,7 @@ Usually, To boot with the new SW image, the device must be reset, but this tool 
 This tool frees me from the tedious SW image rewriting and resetting process.
 
 
-https://github.com/hnz1102/sdcdmux-emmc/assets/111413646/90df2103-9a41-42a5-a473-94728f2bb55f
+https://github.com/hnz1102/sdcdmux-emmc/assets/111413646/edf4297e-6da3-4eba-aacd-01ee126e1040
 
 
 ## Features
