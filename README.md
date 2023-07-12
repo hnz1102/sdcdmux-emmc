@@ -15,6 +15,10 @@ Usually, To boot with the new SW image, the device must be reset, but this tool 
 
 This tool frees me from the tedious SW image rewriting and resetting process.
 
+
+https://github.com/hnz1102/sdcdmux-emmc/assets/111413646/90df2103-9a41-42a5-a473-94728f2bb55f
+
+
 ## Features
 
 - **Fast**. SDCDMUX can write an image to the eMMC device (32GB) instead of SD Card via High-Speed USB. It is 4 times faster than an SD card. 
