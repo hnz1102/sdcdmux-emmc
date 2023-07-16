@@ -9,9 +9,9 @@
 
 The SDCDMUX provides a convenient and quick change of a SW image of a device that has an SD Card interface from a remote. 
 
-When I am developing by booting from an SD card on a device such as the Raspberry Pi, it is not easy to rewrite the SD card image and replace it by hand. Remove the SD card, insert it into the host PC, and take a dozen minutes rewriting the SW image, after that, return the SD card to the device and turn on the power... But, This tool can change the image of the eMMC directly from the host PC, and the device can be booted as an SD card with the new image.
+When I am developing by booting from an SD memory card on a device such as the Raspberry Pi, it is not easy to rewrite the SD card image and replace it by hand. Remove the SD card, insert it into the host PC, and take a dozen minutes rewriting the SW image, after that, return the SD card to the device and turn on the power... But, This tool can change the image of the eMMC directly from the host PC, and the device can be booted as an SD card with the new image.
 
-Usually, To boot with the new SW image, the device must be reset, but this tool can learn the ON/OFF command of the infrared controller and outputs that command to turn the device on and off.
+Usually, To boot with the new SW image, the device must be reset, but this tool can learn the ON/OFF command of the infrared power controller and outputs that command to turn the device on and off.
 
 This tool frees me from the tedious SW image rewriting and resetting process.
 
@@ -21,7 +21,7 @@ https://github.com/hnz1102/sdcdmux-emmc/assets/111413646/edf4297e-6da3-4eba-aacd
 
 ## Features
 
-- **Fast**. SDCDMUX can write an image to the eMMC device (32GB) instead of SD Card via High-Speed USB. It is 4 times faster than an SD card. 
+- **Fast**. SDCDMUX can write an image to the eMMC device (32GB) instead of SD Memory Card via High-Speed USB. It is 4 times faster than an SD card. 
 
 - **Remote Control**. SDCDMUX has an infrared interface that can receive an infrared remote control command and send it to power control devices. If you want to turn on a device, you can type the command "on" on the PC console.
 
@@ -193,7 +193,7 @@ $ sdcdmux -x lightsoff
 
 ## Performance
 
-I created an SD card type SDCDMUX and an eMMC type SDCDMUX. I compared their writing times.
+I created an SD card type and an eMMC type. I compared their writing times.
 
 4.2GB Image Writing Time (Average of 3 times)
 |SD card (*1)|eMMC (*2)|
@@ -206,7 +206,7 @@ I created an SD card type SDCDMUX and an eMMC type SDCDMUX. I compared their wri
 
 ## SDCDMUX Board
 
-SDCDMUX Board Schematic and a PCB layout are placed in the hardware directory. 
+SDCDMUX Board Schematic and a PCB layout are placed in the hardware directory. There are 2 types emmc-version and sdcard-version. This emmc-version uses an eMMC device instead of a SD memory card.
 Schematic data is created by KidCad 7.0.
 
 ![Block Diagram](doc/fig2.png)
