@@ -1,30 +1,39 @@
 /**
-	SDCDMUX V0.1 for eMMC-Version-PCB
+	SDCDMUX V0.2 for eMMC-Version-PCB
 
 		Copyright (c) 2023 Hiroshi Nakajima. All rights reserved.
 
+	V0.2: Using the libftdi driver instead of libftd2xx.
+	V0.1: Initial version.
 **/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
 
-#include "ftd2xx.h"
+#include <ftdi.h>
+
+#define SDCDNUX_VERSION		"0.2"
+#define USB_VENDER_ID		0x0403	// FTDI
+#define USB_PRODUCT_ID		0x6014	// FT232H
 
 #define MAX_CAPTURE_WAIT	100000
 #define MIN_COMMAND_BUF_LEN	512
-#define LEADER_CODE_LEN 	692	// 9ms=692
-#define MINIMUM_IFR_LEN		40	// 562uS=1T
+#define LEADER_CODE_LEN 	692		// 9ms=692
+#define MINIMUM_IFR_LEN		40		// 562uS=1T
 #define TMP_BUF_SIZE		8192
 #define PREAMBLE_BIT_SIZE	LEADER_CODE_LEN
 
-#define START_LOW_THRESHOLD_LEN	200	// > 2.6ms
+#define START_LOW_THRESHOLD_LEN	198	// > 2.6ms
 #define CAPTURE_BUFFER_SIZE	512000
 #define NUM_TX_IFR_CMD		1
 #define DEFAULT_OFF_TIME	10
 #define DEFAULT_ON_TIME		60
-#define CLOCK_RATE_FOR_IFR	15200 // 13uS/8bit 2byte(38kHz) duty=1/2
+#define CLOCK_RATE_FOR_IFR	3800 // 38kHz
+#define CLOCK_RATE_FOR_IFR_TX	3900 // 38kHz * 1.1
 
 #define TARGET_TB   0
 #define TARGET_HOST 1
@@ -42,6 +51,12 @@
 
 #define NO_ERR	0
 #define GNL_ERR	1
+#define FT_OK	0
+
+typedef int 	FT_STATUS;
+typedef struct ftdi_context *FT_HANDLE;
+typedef unsigned char	UCHAR;
+typedef unsigned short 	DWORD;
 
 static int debug = 0;
 static int running = 0;
@@ -78,15 +93,21 @@ static void wating(int wait_time){
     }
 }
 
-static FT_STATUS ftdi_open(FT_HANDLE *pfth){
-	FT_STATUS	fts = FT_OK;
+static FT_STATUS ftdi_open(FT_HANDLE *ftdi){
+	FT_STATUS fts;
 
-	fts = FT_Open(0, pfth);
-	if (fts != FT_OK) 
-	{
-		printf("FT_Open failed (error %d).\n", (int)fts);
-		printf("You should remove old ftdi_sio and usbserial driver. Please do \"./release_mod.sh\".\n");
+	if((*ftdi = ftdi_new()) == 0){
+		fprintf(stderr, "ftdi_new() failed.");
+		exit(1);
 	}
+
+	fts = ftdi_usb_open(*ftdi, USB_VENDER_ID, USB_PRODUCT_ID);
+	if (fts < 0 && fts != 5)
+	{
+		fprintf(stderr, "FT_Open failed (error %d).\n", (int)fts);
+		exit(1);
+	}
+
 	return fts;
 }
 
@@ -224,12 +245,14 @@ static int set_ind(UCHAR val)
 		return fts;
 	}
 
-	fts = FT_GetBitMode(fth, &pinStatus);
+	fts = ftdi_read_pins(fth, &pinStatus);
 	val = (pinStatus & 0x01) | (val & 0x0C);
-	fts = FT_SetBitMode(fth, 
+	fts = ftdi_set_bitmode(fth,
 						0xF0 | (val & 0x0F), // C9,C8,C6,C5
-						FT_BITMODE_CBUS_BITBANG);
-	(void)FT_Close(fth);
+						BITMODE_CBUS);
+	ftdi_usb_close(fth);
+	ftdi_free(fth);	
+
 	return fts;
 }
 
@@ -238,15 +261,14 @@ int ifr_cmd_capture(FT_HANDLE fth, UCHAR *buf, int maxbuf, DWORD *prcvbuf)
 {
 	UCHAR tmpbuf[TMP_BUF_SIZE];
 	FT_STATUS 	fts;
-	DWORD bytesRead = 0, outlen = 0, outofs = 0, wait, room;
+	DWORD bytesRead = 0, outlen = 0, outofs = 0, room;
+	int wait;
 
 	if (maxbuf < MIN_COMMAND_BUF_LEN){
 		printf("Invalid buffer length %d\n", maxbuf);
-		return FT_INVALID_PARAMETER;
+		return -1;
 	}
-	fts = FT_SetBitMode(fth, 
-	                         0x00, // ADBUS1 is TX, ADBUS0 is RX
-	                         FT_BITMODE_ASYNC_BITBANG);
+	fts = ftdi_set_bitmode(fth, 0x00, BITMODE_BITBANG);
 	if (fts != FT_OK) 
 	{
 		printf("FT_SetBitMode failed (error %d).\n", (int)fts);
@@ -257,25 +279,28 @@ int ifr_cmd_capture(FT_HANDLE fth, UCHAR *buf, int maxbuf, DWORD *prcvbuf)
 	outlen = 1;
 	ifr_filter(NULL, 0, 1);
 	while (outlen != 0){
-		fts = FT_Read(fth, tmpbuf, TMP_BUF_SIZE, &bytesRead);
-		if(fts != FT_OK){
+		fts = ftdi_read_data(fth, tmpbuf, TMP_BUF_SIZE);
+		if(fts < 0){
 			return fts;
 		}
+		bytesRead = (DWORD)fts;
 		outlen = ifr_filter(tmpbuf, bytesRead, 0);
-		// printf("Rcv Byte %d for discard outlen=%d \n", bytesRead, outlen);		
+//		printf("Rcv Byte %d for discard outlen=%d \n", bytesRead, outlen);		
 	}
 
-	printf("Caputure Start.. \n");
+	printf("Capture Start.. \n");
 	ifr_filter(NULL, 0, 1);
 	ifr_lowpass_filter(NULL, 0, 1);
 	outofs = PREAMBLE_BIT_SIZE;
 	room = maxbuf - PREAMBLE_BIT_SIZE;
 	memset(buf, 0x01, outofs); 
 	for(wait=0;wait < MAX_CAPTURE_WAIT;wait++){
-		fts = FT_Read(fth, tmpbuf, TMP_BUF_SIZE, &bytesRead);
-		if(fts != FT_OK){
+		fts = ftdi_read_data(fth, tmpbuf, TMP_BUF_SIZE);
+		if(fts < 0){
 			return fts;
 		}
+		bytesRead = fts;
+//		bit_show(tmpbuf, bytesRead, 0);
 		ifr_lowpass_filter(tmpbuf, bytesRead, 0);
 //		bit_show(tmpbuf, bytesRead, 0);
 		outlen = ifr_filter(tmpbuf, bytesRead, 0);
@@ -303,14 +328,28 @@ int ifr_cmd_capture(FT_HANDLE fth, UCHAR *buf, int maxbuf, DWORD *prcvbuf)
 
 int encode_ifr(UCHAR *buf, DWORD cmdlen){
 	DWORD i;
-	UCHAR pbit = 1, bit;
+	UCHAR bit, obit;
+	int zero_count = 0;
 
 	for(i=0;i<cmdlen;i++){
 		bit = *(buf+i) & 0x01;
-		if(pbit == 0 && bit == 0)
-			bit = 1;
-		*(buf+i) = (bit << 1);
-		pbit = bit;
+		if(bit == 0){
+			zero_count++;
+			if(zero_count == 1){
+				obit = 1;
+			}
+			else {
+				obit = 0;
+			}
+		}
+		else {
+			zero_count = 0;
+			obit = 0;
+		}
+		*(buf+i) = (obit << 1);
+		if(zero_count == 2){
+			zero_count = 0;
+		}
 	}
 	*(buf+cmdlen-1) = 0;
 	return FT_OK;
@@ -318,21 +357,20 @@ int encode_ifr(UCHAR *buf, DWORD cmdlen){
 
 DWORD tx_ifr_cmd(FT_HANDLE fth, UCHAR *buf, DWORD cmdlen){
 	DWORD bytesWritten;
-	FT_STATUS ftStatus;
+	FT_STATUS fts;
 
-	ftStatus = FT_SetBitMode(fth, 
-	                         0xFF, // ADBUS1 is TX, ADBUS0 is RX
-	                         FT_BITMODE_ASYNC_BITBANG);
-	if (ftStatus != FT_OK) 
+	fts = ftdi_set_bitmode(fth, 0xFF, BITMODE_BITBANG);
+	if (fts != FT_OK) 
 	{
-		printf("FT_SetBitMode failed (error %d).\n", (int)ftStatus);
-		return ftStatus;
+		printf("FT_SetBitMode failed (error %d).\n", fts);
+		return fts;
 	}
-	ftStatus = FT_Write(fth, buf, cmdlen, &bytesWritten);
-	if (ftStatus != FT_OK)
+	fts = ftdi_write_data(fth, buf, cmdlen);
+	if (fts < 0)
 	{
-		printf("FT_Write failed (error %d).\n", (int)ftStatus);
+		printf("FT_Write failed (error %d).\n", fts);
 	}
+	bytesWritten = (DWORD)fts;
 	return bytesWritten;
 }
 
@@ -392,7 +430,7 @@ int command_capture(char *cmdname, int dumpbit){
 		return fts;
 	}
 
-	fts = FT_SetBaudRate(fth, CLOCK_RATE_FOR_IFR);
+	fts = ftdi_set_baudrate(fth, CLOCK_RATE_FOR_IFR);
 	if (fts != FT_OK) 
 	{
 		printf("FT_SetBaudRate failed (error %d).\n", (int)fts);
@@ -415,11 +453,12 @@ int command_capture(char *cmdname, int dumpbit){
 	save_ifr_cmd(buf, cmdlen, cmdname);
 	if(cmdlen > 0)
 		fts = FT_OK;
-	printf("Recieve IFR data (%dB)\n", cmdlen);
+	printf("Receive IFR data (%dB)\n", cmdlen);
 
 exit:
 
-	(void)FT_Close(fth);
+	ftdi_usb_close(fth);
+	ftdi_free(fth);	
 	return fts;
 }
 
@@ -432,7 +471,7 @@ int command_tx(char *cmdname, int n_tx, int dumpbit){
 		return fts;
 	}
 
-	fts = FT_SetBaudRate(fth, CLOCK_RATE_FOR_IFR);
+	fts = ftdi_set_baudrate(fth, CLOCK_RATE_FOR_IFR_TX);
 	if (fts != FT_OK) 
 	{
 		printf("FT_SetBaudRate failed (error %d).\n", (int)fts);
@@ -451,7 +490,8 @@ int command_tx(char *cmdname, int n_tx, int dumpbit){
 
 exit:
 
-	(void)FT_Close(fth);
+	ftdi_usb_close(fth);
+	ftdi_free(fth);	
 	return fts;
 }
 
@@ -464,14 +504,15 @@ int write_to_tbctl(UCHAR val){
 		return fts;
 	}
 
-	fts = FT_SetBitMode(fth, 
-	                         0xF0 | (val & 0x0F), // C9,C8,C6,C5
-	                         FT_BITMODE_CBUS_BITBANG);
+	fts = ftdi_set_bitmode(fth,
+						0xF0 | (val & 0x0F), // C9,C8,C6,C5
+						BITMODE_CBUS);
 	if (fts != FT_OK)
 	{
 		printf("FT_SetBitMode failed (error %d).\n", (int)fts);
 	}
-	(void)FT_Close(fth);
+	ftdi_usb_close(fth);
+	ftdi_free(fth);	
 	return 0;
 }
 
@@ -484,29 +525,29 @@ int display_status(void){
 	if (fts != FT_OK){
 		return fts;
 	}
-
-	fts = FT_GetBitMode(fth, &pinStatus);
+	fts = ftdi_read_pins(fth, &pinStatus);
 	if (fts != FT_OK) 
 	{
 		printf("FT_GetBitMode failed (error %d).\n", (int)fts);
 	}
 	printf("Memory Device is connected to : %s.\n", (pinStatus & 0x01) ? "HOST" : "TARGET");
-	(void)FT_Close(fth);
+	ftdi_usb_close(fth);
+	ftdi_free(fth);	
 	return fts;
 }
 
 void usage(void){
-	fprintf(stderr, "USB2SDMUX VERSION 0.1\n");
-	fprintf(stderr, "Usage: usb2sdmux [OPTION]...\n");
-	fprintf(stderr, "          -c <cmdname>             CAPTURE IFR COMMAND\n");
-	fprintf(stderr, "          -x <cmdname>             TRANSMIT IFR COMMAND\n");
-	fprintf(stderr, "          -n <tx count>            NUMBER OF TRANSMITING IFR COMMAND (default %d)\n", NUM_TX_IFR_CMD);
-	fprintf(stderr, "          -s <host | target>       SELECT CONNECTING SD CARD\n");
-	fprintf(stderr, "          -l                       START POWER ON/OFF CYCLE(using on & off command)\n");
-	fprintf(stderr, "          -o <ontime>              POWER ON/OFF CYCLE ON TIME (default %dsec)\n", DEFAULT_ON_TIME);
-	fprintf(stderr, "          -f <offtime>             POWER ON/OFF CYCLE OFF TIME (default %dsec)\n", DEFAULT_OFF_TIME);
-	fprintf(stderr, "          -h                       SHOW HELP\n");
-	fprintf(stderr, "          -v                       SHOW IFR COMMAND BIT\n");
+	fprintf(stderr, "SDCDMUX VERSION %s\n", SDCDNUX_VERSION);
+	fprintf(stderr, "Usage: sdcdmux [OPTION]...\n");
+	fprintf(stderr, "          -c <cmdname>             Capture infrared command.\n");
+	fprintf(stderr, "          -x <cmdname>             Transmit infrared command.\n");
+	fprintf(stderr, "          -n <tx count>            Number of transmitting infrared command (default %d)\n", NUM_TX_IFR_CMD);
+	fprintf(stderr, "          -s <host | target>       Select switch to target device or host.\n");
+	fprintf(stderr, "          -l                       Start power ON/OFF cycle(using on & off command).\n");
+	fprintf(stderr, "          -o <ON time>              Set power ON time (default %dsec).\n", DEFAULT_ON_TIME);
+	fprintf(stderr, "          -f <OFF time>             Set poser OFF time (default %dsec).\n", DEFAULT_OFF_TIME);
+	fprintf(stderr, "          -h                       Show help this message.\n");
+	fprintf(stderr, "          -v                       Show infrared command bits.\n");
 	exit(1);
 }
 
@@ -579,7 +620,7 @@ int main(int argc, char *argv[])
 			status = command_capture(cmdname, dumpbit);
 			//}
 			if(status == FT_OK){
-				printf("Caputured command for %s\n", cmdname);
+				printf("Captured command for %s\n", cmdname);
 			}
 			set_ind(0x0C);
 			break;

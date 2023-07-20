@@ -47,30 +47,12 @@ This software (sdcdmux) is for Linux.
 
 The following example is for Ubuntu Linux Ubuntu 22.04.2 LTS.
 
-1. Download the FTDI driver from the FTDI site.
-    [here](https://ftdichip.com/wp-content/uploads/2022/07/libftd2xx-x86_64-1.4.27.tgz)
-
-2. Install driver and libraries.
-
-```bash
-$ tar xfvz libftd2xx-x86_64-1.4.27.tgz
-$ cd release/build
-$ sudo -s
-$ cp libftd2xx.* /usr/local/lib
-$ chmod 0755 /usr/local/lib/libftd2xx.so.1.4.27
-$ ln -sf /usr/local/lib/libftd2xx.so.1.4.27 /usr/local/lib/libftd2xx.so
-$ cd ..
-$ cp ftd2xx.h  /usr/local/include
-$ cp WinTypes.h  /usr/local/include
-$ ldconfig -v
-$ cd ../..
+1. Install build tools
 ```
-3. Install build tools
-```
-$ sudo apt -y install build-essential
+$ sudo apt -y install build-essential libftdi-dev
 ```
 
-4. Build the software.
+2. Build the software.
 ```
 $ cd sdcdmux
 $ make
@@ -83,15 +65,7 @@ $ sudo cp sdcdmux /usr/local/bin/
 ![cable connect](doc/connect-board.jpg)
 ![fig1](doc/fig1.png)
 
-2. Remove kernel drivers.
-
-If you already installed 'ftdi_sio' and 'usbserial' kernel drivers, you should remove these drivers.
-```
-$ ./release_mod.sh
-```
-This script is temporarily removing drivers from the system. After a reboot or re-connect to SDCDMUX, you should remove drivers again using this script. If you want to remove drivers constantly, Please refer to drivers 'Notes on Kernel Built-in Support of FTDI devices.' in the 'release/ReadMe.txt'.  
-
-3. Execute SDCDMUX
+2. Use SDCDMUX
 
 - Display current status.
 ```
@@ -102,10 +76,10 @@ Memory Device is connected to : HOST.
 - Capture infrared ON command.
 ```
 $ sdcdmux -c on
-Caputure Start.. 
+Capture Start.. 
 "Push ON button on your Infrared Remote Controller"
 Recieve IFR data (18245B)
-Caputured command for on
+Captured command for on
 ```
 ![capture command](doc/caputring-cmd.jpg)
 
@@ -114,10 +88,10 @@ After capture the command, you can see the 'if-on' file in the current directory
 - Capture infrared OFF command.
 ```
 $ sdcdmux -c off
-Caputure Start.. 
+Capture Start.. 
 "Push OFF button on your Infrared Remote Controller"
 Recieve IFR data (11449B)
-Caputured command for off
+Captured command for off
 ```
 
 - Select eMMC memory to host PC side.
@@ -173,16 +147,16 @@ $ sdcdmux -x off
 I also use the SDCDMUX as a controller to turn ceiling lights on and off.
 ```
 $ sdcdmux -c lightson
-Caputure Start.. 
+Capture Start.. 
 "Press ON on the remote controller of the ceiling light to make it learn the command."
 Recieve IFR data (8498B)
-Caputured command for lightson
+Captured command for lightson
 
 $ sdcdmux -c lightsoff
-Caputure Start.. 
+Capture Start.. 
 "Press OFF on the remote controller of the ceiling light to make it learn the command."
 Recieve IFR data (10701B)
-Caputured command for lightsoff
+Captured command for lightsoff
 
 $ sdcdmux -x lightson
 "Seiling lights turn on."

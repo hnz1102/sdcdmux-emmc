@@ -17,7 +17,7 @@ APP = sdcdmux
 all: $(APP)
 
 $(APP): $(APP).c
-	$(CC) $(APP).c -o $(APP) -lftd2xx $(CFLAGS) $(DEPENDENCIES)
+	$(CC) $(APP).c -o $(APP) -lftdi $(CFLAGS) $(DEPENDENCIES)
 	
 clean:
 	-rm -f *.o ; rm $(STATIC_APP); rm $(DYNAMIC_APP)
