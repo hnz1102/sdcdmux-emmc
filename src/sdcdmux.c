@@ -33,7 +33,7 @@
 #define DEFAULT_OFF_TIME	10
 #define DEFAULT_ON_TIME		60
 #define CLOCK_RATE_FOR_IFR	3800 // 38kHz
-#define CLOCK_RATE_FOR_IFR_TX	3900 // 38kHz * 1.1
+#define CLOCK_RATE_FOR_IFR_TX	3900 // 38kHz * 1.02
 
 #define TARGET_TB   0
 #define TARGET_HOST 1
@@ -66,7 +66,7 @@ extern char *optarg;
 static void __signal_handler(__attribute__ ((unused)) int dummy);
 static char *get_local_time(char *buf, int len);
 static void power_loop_test(int on_time, int off_time, int n_tx, int dumpbit);
-static void wating(int wait_time);
+static void waiting(int wait_time);
 static int command_tx(char *cmdname, int n_tx, int dumpbit);
 static int set_ind(UCHAR val);
 
@@ -83,7 +83,7 @@ static char *get_local_time(char *buf, int len){
     return buf;
 }
 
-static void wating(int wait_time){
+static void waiting(int wait_time){
     int count = 0;
     while(running){
         if(count++ >= wait_time){
@@ -120,11 +120,11 @@ static void power_loop_test(int on_time, int off_time, int n_tx, int dumpbit){
         printf("POWER ON : No.%d  %s\n", count, get_local_time(buf, sizeof(buf)));
 		command_tx("on", n_tx, dumpbit);
 		set_ind(0x0);
-        wating(on_time);
+        waiting(on_time);
         printf("POWER OFF: No.%d  %s\n", count, get_local_time(buf, sizeof(buf)));
 		command_tx("off", n_tx, dumpbit);
 		set_ind(0x8);
-        wating(off_time);
+        waiting(off_time);
     }
 	set_ind(0xC);
 }
