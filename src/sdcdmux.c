@@ -1,8 +1,9 @@
 /**
-	SDCDMUX V0.2 for eMMC-Version-PCB
+	SDCDMUX for eMMC-Version-PCB
 
 		Copyright (c) 2023 Hiroshi Nakajima. All rights reserved.
 
+	V0.3: Change Transmit Baudrate to 39.6KHz
 	V0.2: Using the libftdi driver instead of libftd2xx.
 	V0.1: Initial version.
 **/
@@ -16,7 +17,7 @@
 
 #include <ftdi.h>
 
-#define SDCDNUX_VERSION		"0.2"
+#define SDCDNUX_VERSION		"0.3"
 #define USB_VENDER_ID		0x0403	// FTDI
 #define USB_PRODUCT_ID		0x6014	// FT232H
 
@@ -33,7 +34,7 @@
 #define DEFAULT_OFF_TIME	10
 #define DEFAULT_ON_TIME		60
 #define CLOCK_RATE_FOR_IFR	3800 // 38kHz
-#define CLOCK_RATE_FOR_IFR_TX	3900 // 38kHz * 1.02
+#define CLOCK_RATE_FOR_IFR_TX	3960 // 38kHz * 1.04
 
 #define TARGET_TB   0
 #define TARGET_HOST 1
