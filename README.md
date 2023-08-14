@@ -19,6 +19,10 @@ This tool frees me from the tedious SW image rewriting and resetting process.
 https://github.com/hnz1102/sdcdmux-emmc/assets/111413646/edf4297e-6da3-4eba-aacd-01ee126e1040
 
 
+### [2023.8.15] USB Type-C version Added.
+![USB Type-C](doc/typec.jpg)
+The Schematic is hardware/emmc-type-c-version/ directory.
+
 ## Features
 
 - **Fast**. SDCDMUX can write an image to the eMMC device (32GB) instead of SD Memory Card via High-Speed USB. It is 4 times faster than an SD card. 
