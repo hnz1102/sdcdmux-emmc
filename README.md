@@ -207,5 +207,12 @@ Single Channel HiSpeed USB to Multipurpose UART/FIFO IC (FT232H) has an EEPROM t
 
 - FT EEPROM - HARDWARE Specific IO Controls - C5, C6, C8 and C9 ports are I/O Mode set.
 
+# CASE
+
+I created the case for SDCDMUX type-C version by 3D printer. There are STL data in the hardware/emmc-type-c-version/case directory.
+
+![case](doc/case.jpg)
+
+
 ## LICENSE
 This Software is licensed under MIT. Other Hardware Schematic documents are licensed under CC-BY-SA V4.0.
