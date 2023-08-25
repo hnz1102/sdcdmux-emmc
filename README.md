@@ -62,6 +62,15 @@ $ cd sdcdmux
 $ make
 $ sudo cp sdcdmux /usr/local/bin/ 
 ```
+3. Add a udev rule.
+/etc/udev/rules.d/99-ft232h.rules
+```
+$ sudo su
+# echo 'SUBSYSTEMS=="usb", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6014",  MODE=
+"0666"' > /etc/udev/rules.d/99-ft232h.rules
+# udevadm control --reload-rules
+# udevadm trigger
+```
 
 ## How to use SDCDMUX.
 
