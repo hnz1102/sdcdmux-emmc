@@ -1,7 +1,7 @@
 Reference,Value,Datasheet,Footprint,Qty,DNP,digikey,storeURL
 "C101,C301,C302,C305,C307,C309,C405,C406,C407,C408,C501,C502,C503,C506,C507,C508,C509,C510,C511,C512,C601,C602,C603,C606",0.1uF,~,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,24,,311-1824-1-ND,https://www.digikey.com/en/products/detail/yageo/CC0603MRX7R7BB104/5195231
 "C201,C304,C306,C308",10uF,~,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,4,,311-1355-1-ND,https://www.digikey.com/en/products/detail/yageo/CC0805ZKY5V6BB106/2103093
-C202,22uF,~,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,1,,311-1815-1-ND,https://www.digikey.com/en/products/detail/yageo/CC0603MRX5R5BB226/519522
+C202,22uF,~,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,1,,311-1815-1-ND,https://www.digikey.com/en/products/detail/yageo/CC0603MRX5R5BB226/5195222
 C303,2.2uF,~,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,1,,311-1795-1-ND,https://www.digikey.com/en/products/detail/yageo/CC0603KRX7R5BB225/5195203
 "C401,C402,C409,C410,C604,C605",1uF,~,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,6,,311-3440-1-ND,https://www.digikey.com/en/products/detail/yageo/CC0805MRY5V7BB105/5884286
 "C403,C404,C504,C505",27pF,~,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,4,,311-1063-1-ND,https://www.digikey.com/en/products/detail/yageo/CC0603JRNPO9BN270/302797
